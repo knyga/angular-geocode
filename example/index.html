@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html ng-app="ok">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>AngularJS Geocoding</title>
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css"/>
+</head>
+<body>
+
+<div ng-controller="Geo">
+    <input type="text" value="{{geo.name}}" lat="geo.lat" lng="geo.lng" address="geo.name" geocode />
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+<script src="../bower_components/angular/angular.js"></script>
+<script src="../src/angular-geocode.js"></script>
+<script src="../src/directive/angular-geocode.js"></script>
+<script src="../src/provider/angular-geocode-forward.js"></script>
+
+<script>
+    //https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete
+    angular.module('ok', ['angularGeocode'])
+            .controller('Geo', ['$scope', 'geocodeForward', function($scope, geocodeForward) {
+                $scope.geo = {
+                    name: "Paris",
+                    lat: 0,
+                    lng: 0
+                };
+
+
+                geocodeForward("Paris").then(function(latLng) {
+                    console.log(latLng);
+                });
+            }]);
+</script>
+</body>
+</html>
