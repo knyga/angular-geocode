@@ -1,0 +1,29 @@
+{
+  "name": "angular-geocode",
+  "version": "0.0.1",
+  "authors": [
+    "Oleksandr Knyga <oleksandrknyga@gmail.com>"
+  ],
+  "description": "AngularJS geocoding directive",
+  "main": "angular-geocode.js",
+  "keywords": [
+    "angularjs",
+    "geocode",
+    "geocoder",
+    "google",
+    "maps",
+    "maps",
+    "oknyga",
+    "knyga",
+    "google"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/knyga/angular-geocode",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
