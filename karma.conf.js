@@ -19,8 +19,8 @@ module.exports = function (config) {
             'bower_components/angular/angular.js',
             'bower_components/angular-mocks/angular-mocks.js',
             'src/angular-geocode.js',
-            'src/directive/angular-geocode.js',
-            'src/provider/angular-geocode-forward.js',
+            'src/angular-geocode-provider.js',
+            'src/angular-geocode-directive.js',
             'test/spec/**/*.js'
         ],
 
