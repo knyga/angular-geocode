@@ -1,4 +1,4 @@
-/*global describe, beforeEach, it, inject, module, angular, expect, afterEach*/
+/*global describe, beforeEach, it, inject, module, expect*/
 describe('Factory: AngularGeocodeForward', function () {
     var geocode,
         $timeout,

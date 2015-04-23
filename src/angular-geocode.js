@@ -1,2 +1,2 @@
-/*global angular, google */
+/*global angular */
 angular.module('angularGeocode', []);

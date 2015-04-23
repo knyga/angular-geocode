@@ -5,7 +5,7 @@ angular.module('angularGeocode')
         var runGeoCoder = function(options, process, deferred) {
             geocoder.geocode(options, function(result, status) {
                 $timeout(function() {
-                    if(!process(result, status, deferred)) {
+                    if(!process(result, status)) {
                         switch(status) {
                             case google.maps.GeocoderStatus.OVER_QUERY_LIMIT:
                                 deferred.reject('Over query limit');
@@ -25,7 +25,7 @@ angular.module('angularGeocode')
         return {
             toLatLng: function(address) {
                 var deferred = $q.defer(),
-                    process = function(result, status, deffered) {
+                    process = function(result, status) {
                         switch(status) {
                             case google.maps.GeocoderStatus.OK:
                                 deferred.resolve({
@@ -51,8 +51,8 @@ angular.module('angularGeocode')
             },
             toAddress: function(latLng) {
                 var deferred = $q.defer(),
-                    process = function(result, status, deffered) {
-                        if(status == google.maps.GeocoderStatus.OK) {
+                    process = function(result, status) {
+                        if(status === google.maps.GeocoderStatus.OK) {
 
                             if (result[1]) {
                                 deferred.resolve(result[1].formatted_address);
