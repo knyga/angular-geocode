@@ -53,10 +53,10 @@ describe('Factory: AngularGeocodeForward', function () {
             bounds: new google.maps.LatLngBounds(
                 new google.maps.LatLng(48.81206, 2.24488),
                 new google.maps.LatLng(48.90467, 2.42272)),
-            latLng: {latitude: 47, longitude: 2.3522219000000177}
+            latLng: {latitude: 48.856614, longitude: 2.3522219000000177}
         })
             .then(function (value) {
-                expect(value.address).toEqual('France');
+                expect(value.address).toEqual('4th arrondissement, Paris, France');
                 next();
             });
 

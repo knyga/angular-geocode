@@ -68,6 +68,19 @@ angular.module('angularGeocode')
             return "undefined" !== typeof google ? new google.maps.Geocoder() : null;
         };
 
+        var getLocationSquare = function(location) {
+            var ltr = {
+                x: location.geometry.bounds.getNorthEast().lat(),
+                y: location.geometry.bounds.getNorthEast().lng()
+            },
+                lbl = {
+                    x: location.geometry.bounds.getSouthWest().lat(),
+                    y: location.geometry.bounds.getSouthWest().lng()
+                };
+
+            return (ltr.x - lbl.x) * (ltr.y - lbl.y);
+        };
+
         var getIslocationInsideBounds = function (location, bounds) {
             var btr = {
                     x: bounds.getNorthEast().lat(),
@@ -158,18 +171,42 @@ angular.module('angularGeocode')
                         switch (status) {
                             case "OK": //google.maps.GeocoderStatus.OK:
                                 var address = result.length ? result[result.length - 1].formatted_address : "",
+                                    filteredResults = [],
+                                    findLoc = null,
                                     i = 0;
-                                //find first administrative_area_level object or return last
-                                for (i = 0; i < result.length; i++) {
 
-                                    if (/(locality|administrative_area_level)/.test(result[i].types[0]) &&
-                                        result[i].hasOwnProperty('geometry') &&
-                                        (!options.bounds || getIslocationInsideBounds(result[i], options.bounds))
+                                //filter by the areas and insidebounds
+                                for (i = 0; i < result.length; i++) {
+                                    if (/(locality|administrative_area_level|country)/.test(result[i].types[0]) &&
+                                        result[i].hasOwnProperty('geometry')
                                     ) {
-                                        address = result[i].formatted_address;
-                                        break;
+                                        if(!options.bounds || getIslocationInsideBounds(result[i], options.bounds)) {
+                                            filteredResults.push(result[i]);
+                                        }
+
+                                        if(!findLoc) {
+                                            findLoc = result[i];
+                                        }
+
+                                        //address = result[i].formatted_address;
+                                        //break;
                                     }
                                 }
+
+                                if(filteredResults.length > 0 ) {
+                                    //order by square of zone, biggest first
+                                    filteredResults.sort(function(loc) {
+                                        return getLocationSquare(loc);
+                                    });
+
+                                    //findLoc = filteredResults[0];
+                                }
+
+                                //take with the smallest difference
+                                address = findLoc.formatted_address;
+
+                                //find first administrative_area_level object or return last
+
 
                                 if (address) {
                                     deferred.resolve({

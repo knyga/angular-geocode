@@ -119,7 +119,9 @@ angular.module('angularGeocode')
                                     ) {
                                         if(!options.bounds || getIslocationInsideBounds(result[i], options.bounds)) {
                                             filteredResults.push(result[i]);
-                                        } else {
+                                        }
+
+                                        if(!findLoc) {
                                             findLoc = result[i];
                                         }
 
@@ -134,7 +136,7 @@ angular.module('angularGeocode')
                                         return getLocationSquare(loc);
                                     });
 
-                                    findLoc = filteredResults[0];
+                                    //findLoc = filteredResults[0];
                                 }
 
                                 //take with the smallest difference
