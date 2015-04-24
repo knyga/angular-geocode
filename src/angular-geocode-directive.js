@@ -9,14 +9,24 @@ angular.module('angularGeocode')
                 result: '=?'
             },
             template: '<div></div>',
-            link: function ($scope) {
+            link: function ($scope, element, attrs) {
                 var ignoreChange = {
                     address: false,
                     coordinates: true
-                };
+                    },
+                    isChangedManually = false,
+                    isBlockReverceOnManual = attrs.hasOwnProperty('blockManualReverce') ? true : false;
+
+                element.on('change keydown', function() {
+                    isChangedManually = true;
+                });
 
                 //Update coordinates on address changed
-                $scope.$watch('address', function (address) {
+                $scope.$watch('address', function (address, oldAddress) {
+                    if(oldAddress && 0 < oldAddress.length && 0 == address.length) {
+                        isChangedManually = false;
+                    }
+
                     if (!ignoreChange.address) {
                         geocodef.toLatLng(address).then(function (value) {
                             $scope.coordinates = value.latLng;
@@ -29,11 +39,12 @@ angular.module('angularGeocode')
 
                 //Update address on coordinates changed
                 $scope.$watch('coordinates', function (latLng) {
-                    if (!ignoreChange.coordinates) {
+                    if (!ignoreChange.coordinates && !(isChangedManually && isBlockReverceOnManual)) {
                         geocodef.toAddress(latLng).then(function (value) {
                             $scope.address = value.address;
                             $scope.result = value.result;
                             ignoreChange.address = true;
+                            isChangedManually = false;
                         });
                     }
                     ignoreChange.coordinates = false;
