@@ -12,8 +12,8 @@ describe('Factory: AngularGeocodeForward', function () {
     }));
 
     it('should return correct coordinates', function (next) {
-        geocodef.toLatLng("Paris").then(function (latLng) {
-            expect(latLng).toEqual({lat: 48.856614, lng: 2.3522219000000177});
+        geocodef.toLatLng("Paris").then(function (value) {
+            expect(value.latLng).toEqual({lat: 48.856614, lng: 2.3522219000000177});
             next();
         });
         var id = -1,
@@ -31,8 +31,8 @@ describe('Factory: AngularGeocodeForward', function () {
 
     it('should return correct address', function (next) {
         geocodef.toAddress({lat: 48.856614, lng: 2.3522219000000177})
-            .then(function (address) {
-                expect(address).toEqual('Paris, France');
+            .then(function (value) {
+                expect(value.address).toEqual('Paris, France');
                 next();
         });
         var id = -1,

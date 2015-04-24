@@ -8,7 +8,8 @@
 <body>
 
 <div ng-controller="Geo">
-    <input type="text" ng-model="geo.name" ng-model-options="{debounce: 1000}" coordinates="geo.latLng" address="geo.name" geocode />
+    <input type="text" ng-model="geo.name" ng-model-options="{debounce: 1000}"
+           coordinates="geo.latLng" address="geo.name" result="geo.result" geocode />
     <input type="number" ng-model="geo.latLng.lat" ng-model-options="{debounce: 1000}" />
     <input type="number" ng-model="geo.latLng.lng" ng-model-options="{debounce: 1000}" />
 </div>
@@ -28,8 +29,13 @@
                     latLng: {
                         lat: 0,
                         lng: 0
-                    }
+                    },
+                    result: null
                 };
+
+                $scope.$watch('geo.result', function(result) {
+                    console.log(result);
+                });
             }]);
 </script>
 </body>

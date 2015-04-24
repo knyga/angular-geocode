@@ -7,8 +7,9 @@ angular.module('angularGeocode')
         return {
             restrict: 'EA',
             scope: {
-                address: '=',
-                coordinates: '='
+                address: '=?',
+                coordinates: '=?',
+                result: '=?'
             },
             template: '<div></div>',
             link: function ($scope) {
@@ -20,8 +21,9 @@ angular.module('angularGeocode')
                 //Update coordinates on address changed
                 $scope.$watch('address', function (address) {
                     if (!ignoreChange.address) {
-                        geocodef.toLatLng(address).then(function (latLng) {
-                            $scope.coordinates = latLng;
+                        geocodef.toLatLng(address).then(function (value) {
+                            $scope.coordinates = value.latLng;
+                            $scope.result = value.result;
                             ignoreChange.coordinates = true;
                         });
                     }
@@ -31,8 +33,9 @@ angular.module('angularGeocode')
                 //Update address on coordinates changed
                 $scope.$watch('coordinates', function (latLng) {
                     if (!ignoreChange.coordinates) {
-                        geocodef.toAddress(latLng).then(function (address) {
-                            $scope.address = address;
+                        geocodef.toAddress(latLng).then(function (value) {
+                            $scope.address = value.address;
+                            $scope.result = value.result;
                             ignoreChange.address = true;
                         });
                     }
@@ -76,19 +79,26 @@ angular.module('angularGeocode')
             toLatLng: function (address) {
                 var deferred = $q.defer(),
                     process = function (result, status) {
+                        var value = {
+                            latLng: {
+                                lat: 0,
+                                lng: 0
+                            },
+                            address: address,
+                            result: result
+                        };
+
                         switch (status) {
                             case "OK": //google.maps.GeocoderStatus.OK:
-                                deferred.resolve({
+                                value.latLng = {
                                     lat: result[0].geometry.location.lat(),
                                     lng: result[0].geometry.location.lng()
-                                });
+                                };
+                                deferred.resolve(value);
                                 return true;
                             case "ZERO_RESULTS": //google.maps.GeocoderStatus.ZERO_RESULTS:
                                 //console.log('Zero results were found for forward geocoding of "'+address+'"');
-                                deferred.resolve({
-                                    lat: 0,
-                                    lng: 0
-                                });
+                                deferred.resolve(value);
                                 return true;
                         }
 
@@ -121,7 +131,11 @@ angular.module('angularGeocode')
                                 }
 
                                 if (address) {
-                                    deferred.resolve(address);
+                                    deferred.resolve({
+                                        address: address,
+                                        latLng: latLng,
+                                        result: result
+                                    });
                                     return true;
                                 }
 

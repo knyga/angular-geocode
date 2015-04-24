@@ -4,8 +4,9 @@ angular.module('angularGeocode')
         return {
             restrict: 'EA',
             scope: {
-                address: '=',
-                coordinates: '='
+                address: '=?',
+                coordinates: '=?',
+                result: '=?'
             },
             template: '<div></div>',
             link: function ($scope) {
@@ -17,8 +18,9 @@ angular.module('angularGeocode')
                 //Update coordinates on address changed
                 $scope.$watch('address', function (address) {
                     if (!ignoreChange.address) {
-                        geocodef.toLatLng(address).then(function (latLng) {
-                            $scope.coordinates = latLng;
+                        geocodef.toLatLng(address).then(function (value) {
+                            $scope.coordinates = value.latLng;
+                            $scope.result = value.result;
                             ignoreChange.coordinates = true;
                         });
                     }
@@ -28,8 +30,9 @@ angular.module('angularGeocode')
                 //Update address on coordinates changed
                 $scope.$watch('coordinates', function (latLng) {
                     if (!ignoreChange.coordinates) {
-                        geocodef.toAddress(latLng).then(function (address) {
-                            $scope.address = address;
+                        geocodef.toAddress(latLng).then(function (value) {
+                            $scope.address = value.address;
+                            $scope.result = value.result;
                             ignoreChange.address = true;
                         });
                     }

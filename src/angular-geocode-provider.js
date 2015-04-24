@@ -34,19 +34,26 @@ angular.module('angularGeocode')
             toLatLng: function (address) {
                 var deferred = $q.defer(),
                     process = function (result, status) {
+                        var value = {
+                            latLng: {
+                                lat: 0,
+                                lng: 0
+                            },
+                            address: address,
+                            result: result
+                        };
+
                         switch (status) {
                             case "OK": //google.maps.GeocoderStatus.OK:
-                                deferred.resolve({
+                                value.latLng = {
                                     lat: result[0].geometry.location.lat(),
                                     lng: result[0].geometry.location.lng()
-                                });
+                                };
+                                deferred.resolve(value);
                                 return true;
                             case "ZERO_RESULTS": //google.maps.GeocoderStatus.ZERO_RESULTS:
                                 //console.log('Zero results were found for forward geocoding of "'+address+'"');
-                                deferred.resolve({
-                                    lat: 0,
-                                    lng: 0
-                                });
+                                deferred.resolve(value);
                                 return true;
                         }
 
@@ -79,7 +86,11 @@ angular.module('angularGeocode')
                                 }
 
                                 if (address) {
-                                    deferred.resolve(address);
+                                    deferred.resolve({
+                                        address: address,
+                                        latLng: latLng,
+                                        result: result
+                                    });
                                     return true;
                                 }
 
