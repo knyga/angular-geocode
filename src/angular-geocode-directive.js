@@ -11,7 +11,7 @@ angular.module('angularGeocode')
             link: function ($scope) {
                 var ignoreChange = {
                     address: false,
-                    coordinates: false
+                    coordinates: true
                 };
 
                 //Update coordinates on address changed
