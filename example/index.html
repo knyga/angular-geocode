@@ -9,7 +9,7 @@
 
 <div ng-controller="Geo">
     <input type="text" ng-model="geo.name" ng-model-options="{debounce: 1000}"
-           coordinates="geo.latLng" address="geo.name" result="geo.result" geocode block-manual-reverse />
+           coordinates="geo.latLng" bounds="geo.bounds" address="geo.name" result="geo.result" geocode block-manual-reverse />
     <input type="number" ng-model="geo.latLng.latitude" ng-model-options="{debounce: 1000}" />
     <input type="number" ng-model="geo.latLng.longitude" ng-model-options="{debounce: 1000}" />
 </div>
@@ -30,7 +30,10 @@
                         latitude: 0,
                         longitude: 0
                     },
-                    result: null
+                    result: null,
+                    bounds: new google.maps.LatLngBounds(
+                            new google.maps.LatLng(48.81206, 2.24488),
+                            new google.maps.LatLng(48.90467, 2.42272))
                 };
 
                 $scope.$watch('geo.result', function(result) {

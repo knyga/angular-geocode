@@ -9,7 +9,8 @@ angular.module('angularGeocode')
             scope: {
                 address: '=?',
                 coordinates: '=?',
-                result: '=?'
+                result: '=?',
+                bounds: '=?'
             },
             template: '<div></div>',
             link: function ($scope, element, attrs) {
@@ -31,7 +32,10 @@ angular.module('angularGeocode')
                     }
 
                     if (!ignoreChange.address) {
-                        geocodef.toLatLng(address).then(function (value) {
+                        geocodef.toLatLng({
+                            address: address,
+                            bounds: $scope.bounds
+                        }).then(function (value) {
                             $scope.coordinates = value.latLng;
                             $scope.result = value.result;
                             ignoreChange.coordinates = true;
@@ -43,7 +47,10 @@ angular.module('angularGeocode')
                 //Update address on coordinates changed
                 $scope.$watch('coordinates', function (latLng) {
                     if (!ignoreChange.coordinates && !(isChangedManually && isBlockReverseOnManual)) {
-                        geocodef.toAddress(latLng).then(function (value) {
+                        geocodef.toAddress({
+                            latLng: latLng,
+                            bounds: $scope.bounds
+                        }).then(function (value) {
                             $scope.address = value.address;
                             $scope.result = value.result;
                             ignoreChange.address = true;
@@ -56,14 +63,35 @@ angular.module('angularGeocode')
         };
     }]);
 angular.module('angularGeocode')
-    .factory('geocodef', ['$timeout', '$q', function($timeout, $q) {
-        var initGeocoder = function() {
+    .factory('geocodef', ['$timeout', '$q', function ($timeout, $q) {
+        var initGeocoder = function () {
             return "undefined" !== typeof google ? new google.maps.Geocoder() : null;
+        };
+
+        var getIslocationInsideBounds = function (location, bounds) {
+            var btr = {
+                    x: bounds.getNorthEast().lat(),
+                    y: bounds.getNorthEast().lng()
+                },
+                bbl = {
+                    x: bounds.getSouthWest().lat(),
+                    y: bounds.getSouthWest().lng()
+                },
+                ltr = {
+                    x: location.geometry.bounds.getNorthEast().lat(),
+                    y: location.geometry.bounds.getNorthEast().lng()
+                },
+                lbl = {
+                    x: location.geometry.bounds.getSouthWest().lat(),
+                    y: location.geometry.bounds.getSouthWest().lng()
+                };
+
+            return btr.x > ltr.x && btr.y > ltr.y && bbl.x < lbl.x && bbl.y < lbl.y;
         };
 
         var geocoder = initGeocoder();
         var runGeoCoder = function (options, process, deferred) {
-            if(null == geocoder) {
+            if (null == geocoder) {
                 geocoder = initGeocoder();
             }
 
@@ -87,7 +115,7 @@ angular.module('angularGeocode')
         };
 
         return {
-            toLatLng: function (address) {
+            toLatLng: function (options) {
                 var deferred = $q.defer(),
                     process = function (result, status) {
                         var value = {
@@ -95,7 +123,7 @@ angular.module('angularGeocode')
                                 latitude: 0,
                                 longitude: 0
                             },
-                            address: address,
+                            address: options.address,
                             result: result
                         };
 
@@ -116,15 +144,15 @@ angular.module('angularGeocode')
                         return false;
                     };
 
-                if (address) {
-                    runGeoCoder({address: address}, process, deferred);
+                if (options.address) {
+                    runGeoCoder({address: options.address}, process, deferred);
                 } else {
                     process(null, google.maps.GeocoderStatus.ZERO_RESULTS);
                 }
 
                 return deferred.promise;
             },
-            toAddress: function (latLng) {
+            toAddress: function (options) {
                 var deferred = $q.defer(),
                     process = function (result, status) {
                         switch (status) {
@@ -132,11 +160,12 @@ angular.module('angularGeocode')
                                 var address = result.length ? result[result.length - 1].formatted_address : "",
                                     i = 0;
                                 //find first administrative_area_level object or return last
-
                                 for (i = 0; i < result.length; i++) {
 
-                                    if (/(locality|administrative_area_level)/.test(result[i].types[0])) {
-                                    //if(result[i].hasOwnProperty('geometry')) {
+                                    if (/(locality|administrative_area_level)/.test(result[i].types[0]) &&
+                                        result[i].hasOwnProperty('geometry') &&
+                                        (!options.bounds || getIslocationInsideBounds(result[i], options.bounds))
+                                    ) {
                                         address = result[i].formatted_address;
                                         break;
                                     }
@@ -145,7 +174,7 @@ angular.module('angularGeocode')
                                 if (address) {
                                     deferred.resolve({
                                         address: address,
-                                        latLng: latLng,
+                                        latLng: options.latLng,
                                         result: result
                                     });
                                     return true;
@@ -161,11 +190,13 @@ angular.module('angularGeocode')
                         return false;
                     };
 
-                if (latLng && latLng.latitude && latLng.longitude) {
-                    runGeoCoder({latLng: {
-                        lat: latLng.latitude,
-                        lng: latLng.longitude
-                    }}, process, deferred);
+                if (options.latLng && options.latLng.latitude && options.latLng.longitude) {
+                    runGeoCoder({
+                        latLng: {
+                            lat: options.latLng.latitude,
+                            lng: options.latLng.longitude
+                        }
+                    }, process, deferred);
                 } else {
                     process(null, google.maps.GeocoderStatus.ZERO_RESULTS);
                 }
