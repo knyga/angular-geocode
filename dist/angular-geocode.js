@@ -81,8 +81,8 @@ angular.module('angularGeocode')
                     process = function (result, status) {
                         var value = {
                             latLng: {
-                                lat: 0,
-                                lng: 0
+                                latitude: 0,
+                                longitude: 0
                             },
                             address: address,
                             result: result
@@ -91,8 +91,8 @@ angular.module('angularGeocode')
                         switch (status) {
                             case "OK": //google.maps.GeocoderStatus.OK:
                                 value.latLng = {
-                                    lat: result[0].geometry.location.lat(),
-                                    lng: result[0].geometry.location.lng()
+                                    latitude: result[0].geometry.location.lat(),
+                                    longitude: result[0].geometry.location.lng()
                                 };
                                 deferred.resolve(value);
                                 return true;
@@ -149,8 +149,11 @@ angular.module('angularGeocode')
                         return false;
                     };
 
-                if (latLng && latLng.lat && latLng.lng) {
-                    runGeoCoder({latLng: latLng}, process, deferred);
+                if (latLng && latLng.latitude && latLng.longitude) {
+                    runGeoCoder({latLng: {
+                        lat: latLng.latitude,
+                        lng: latLng.longitude
+                    }}, process, deferred);
                 } else {
                     process(null, google.maps.GeocoderStatus.ZERO_RESULTS);
                 }
