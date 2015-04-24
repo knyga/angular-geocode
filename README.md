@@ -24,3 +24,5 @@ geocodef.toLatLng(address).then(function (latLng) {
     ignoreChange.coordinates = true;
 });
 ```
+## Author
+Oleksandr Knyga <oleksandrknyga@gmail.com>
