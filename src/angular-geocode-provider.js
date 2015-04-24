@@ -79,7 +79,7 @@ angular.module('angularGeocode')
 
                                 for (i = 0; i < result.length; i++) {
 
-                                    if (/(locality|route|administrative_area_level)/.test(result[i].types[0])) {
+                                    if (/(locality|administrative_area_level)/.test(result[i].types[0])) {
                                     //if(result[i].hasOwnProperty('geometry')) {
                                         address = result[i].formatted_address;
                                         break;
