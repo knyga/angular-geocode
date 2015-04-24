@@ -8,29 +8,28 @@
 <body>
 
 <div ng-controller="Geo">
-    <input type="text" value="{{geo.name}}" lat="geo.lat" lng="geo.lng" address="geo.name" geocode />
+    <input type="text" ng-model="geo.name" ng-model-options="{debounce: 1000}" coordinates="geo.latLng" address="geo.name" geocode />
+    <input type="number" ng-model="geo.latLng.lat" ng-model-options="{debounce: 1000}" />
+    <input type="number" ng-model="geo.latLng.lng" ng-model-options="{debounce: 1000}" />
 </div>
 
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
 <script src="../bower_components/angular/angular.js"></script>
 <script src="../src/angular-geocode.js"></script>
-<script src="../src/directive/angular-geocode.js"></script>
-<script src="../src/provider/angular-geocode-forward.js"></script>
+<script src="../src/angular-geocode-directive.js"></script>
+<script src="../src/angular-geocode-provider.js"></script>
 
 <script>
     //https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete
     angular.module('ok', ['angularGeocode'])
-            .controller('Geo', ['$scope', 'geocodeForward', function($scope, geocodeForward) {
+            .controller('Geo', ['$scope', function($scope) {
                 $scope.geo = {
                     name: "Paris",
-                    lat: 0,
-                    lng: 0
+                    latLng: {
+                        lat: 0,
+                        lng: 0
+                    }
                 };
-
-
-                geocodeForward("Paris").then(function(latLng) {
-                    console.log(latLng);
-                });
             }]);
 </script>
 </body>
