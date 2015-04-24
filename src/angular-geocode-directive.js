@@ -15,7 +15,7 @@ angular.module('angularGeocode')
                     coordinates: true
                     },
                     isChangedManually = false,
-                    isBlockReverceOnManual = attrs.hasOwnProperty('blockManualReverce') ? true : false;
+                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse') ? true : false;
 
                 element.on('change keydown', function() {
                     isChangedManually = true;
@@ -39,7 +39,7 @@ angular.module('angularGeocode')
 
                 //Update address on coordinates changed
                 $scope.$watch('coordinates', function (latLng) {
-                    if (!ignoreChange.coordinates && !(isChangedManually && isBlockReverceOnManual)) {
+                    if (!ignoreChange.coordinates && !(isChangedManually && isBlockReverseOnManual)) {
                         geocodef.toAddress(latLng).then(function (value) {
                             $scope.address = value.address;
                             $scope.result = value.result;
