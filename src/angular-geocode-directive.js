@@ -16,7 +16,8 @@ angular.module('angularGeocode')
                     coordinates: true
                     },
                     isChangedManually = false,
-                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse') ? true : false;
+                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse') ? true : false,
+                    isReverseBinding = attrs.hasOwnProperty('reverseBinding') ? true : false;
 
                 element.on('change keydown', function() {
                     isChangedManually = true;
@@ -43,7 +44,8 @@ angular.module('angularGeocode')
 
                 //Update address on coordinates changed
                 $scope.$watch('coordinates', function (latLng) {
-                    if (!ignoreChange.coordinates && !(isChangedManually && isBlockReverseOnManual)) {
+                    if (!ignoreChange.coordinates && isReverseBinding &&
+                        !(isChangedManually && isBlockReverseOnManual)) {
                         geocodef.toAddress({
                             latLng: latLng,
                             bounds: $scope.bounds
