@@ -98,7 +98,7 @@ angular.module('angularGeocode')
                                 deferred.reject("Location not found");
                                 break;
                             case "ZERO_RESULTS": //google.maps.GeocoderStatus.ZERO_RESULTS:
-                                deferred.resolve("");
+                                deferred.reject("No results");
                                 return true;
                         }
 
