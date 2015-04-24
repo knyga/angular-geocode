@@ -23,7 +23,7 @@ angular.module('angularGeocode')
 
                 //Update coordinates on address changed
                 $scope.$watch('address', function (address, oldAddress) {
-                    if(oldAddress && 0 < oldAddress.length && 0 == address.length) {
+                    if(oldAddress && 0 < oldAddress.length && 0 === address.length) {
                         isChangedManually = false;
                     }
 
