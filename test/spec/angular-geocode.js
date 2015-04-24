@@ -32,7 +32,7 @@ describe('Factory: AngularGeocodeForward', function () {
     it('should return correct address', function (next) {
         geocodef.toAddress({latitude: 48.856614, longitude: 2.3522219000000177})
             .then(function (value) {
-                expect(value.address).toEqual('Paris, France');
+                expect(value.address).toEqual('4th arrondissement, Paris, France');
                 next();
         });
         var id = -1,
