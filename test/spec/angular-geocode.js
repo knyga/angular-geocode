@@ -1,18 +1,18 @@
 /*global describe, beforeEach, it, inject, module, expect*/
 describe('Factory: AngularGeocodeForward', function () {
-    var geocode,
+    var geocodef,
         $timeout,
         checkPause = 250;//ms
 
     beforeEach(module('angularGeocode'));
 
-    beforeEach(inject(function (_$timeout_, _geocode_) {
-        geocode = _geocode_;
+    beforeEach(inject(function (_$timeout_, _geocodef_) {
+        geocodef = _geocodef_;
         $timeout = _$timeout_;
     }));
 
     it('should return correct coordinates', function (next) {
-        geocode.toLatLng("Paris").then(function (latLng) {
+        geocodef.toLatLng("Paris").then(function (latLng) {
             expect(latLng).toEqual({lat: 48.856614, lng: 2.3522219000000177});
             next();
         });
@@ -30,9 +30,9 @@ describe('Factory: AngularGeocodeForward', function () {
     });
 
     it('should return correct address', function (next) {
-        geocode.toAddress({lat: 48.856614, lng: 2.3522219000000177})
+        geocodef.toAddress({lat: 48.856614, lng: 2.3522219000000177})
             .then(function (address) {
-                expect(address).toEqual('Saint-Merri, Paris, France');
+                expect(address).toEqual('Paris, France');
                 next();
         });
         var id = -1,

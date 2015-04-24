@@ -1,20 +1,47 @@
-/*! angular-geocode - v1.0.0 - 2015-04-23
+/*! angular-geocode - v1.0.0 - 2015-04-24
 * https://github.com/knyga/angular-geocode
 * Copyright (c) 2015 ; Licensed  */
 angular.module('angularGeocode')
-    .directive('geocode', [function() {
+    .directive('geocode', ['$timeout', 'geocodef', function ($timeout, geocodef) {
         return {
             restrict: 'EA',
             scope: {
                 address: '=',
-                lat: '=',
-                lng: '='
+                coordinates: '='
             },
-            template: '<div></div>'
+            template: '<div></div>',
+            link: function ($scope) {
+                var ignoreChange = {
+                    address: false,
+                    coordinates: false
+                };
+
+                //Update coordinates on address changed
+                $scope.$watch('address', function (address) {
+                    if (!ignoreChange.address) {
+                        geocodef.toLatLng(address).then(function (latLng) {
+                            $scope.coordinates = latLng;
+                            ignoreChange.coordinates = true;
+                        });
+                    }
+                    ignoreChange.address = false;
+                });
+
+                //Update address on coordinates changed
+                $scope.$watch('coordinates', function (latLng) {
+                    if (!ignoreChange.coordinates) {
+                        geocodef.toAddress(latLng).then(function (address) {
+                            $scope.address = address;
+                            ignoreChange.address = true;
+                        });
+                    }
+                    ignoreChange.coordinates = false;
+                }, true);
+            }
         };
     }]);
 angular.module('angularGeocode')
-    .factory('geocode', ['$timeout', '$q', function($timeout, $q) {
+    .factory('geocodef', ['$timeout', '$q', function($timeout, $q) {
         var geocoder = new google.maps.Geocoder();
         var runGeoCoder = function(options, process, deferred) {
             geocoder.geocode(options, function(result, status) {
@@ -59,7 +86,11 @@ angular.module('angularGeocode')
                         return false;
                     };
 
-                runGeoCoder({address: address}, process, deferred);
+                if(address) {
+                    runGeoCoder({address: address}, process, deferred);
+                } else {
+                    process(null, google.maps.GeocoderStatus.ZERO_RESULTS);
+                }
 
                 return deferred.promise;
             },
@@ -67,9 +98,20 @@ angular.module('angularGeocode')
                 var deferred = $q.defer(),
                     process = function(result, status) {
                         if(status === google.maps.GeocoderStatus.OK) {
+                            var address = result.length ? result[result.length-1].formatted_address : "",
+                                i = 0;
+                            //find first administrative_area_level object or return last
 
-                            if (result[1]) {
-                                deferred.resolve(result[1].formatted_address);
+                            for(i=0;i<result.length;i++) {
+
+                                if(/administrative_area_level/.test(result[i].types[0])) {
+                                    address = result[i].formatted_address;
+                                    break;
+                                }
+                            }
+
+                            if (address) {
+                                deferred.resolve(address);
                                 return true;
                             }
 
@@ -79,7 +121,11 @@ angular.module('angularGeocode')
                         return false;
                     };
 
-                runGeoCoder({latLng: latLng}, process, deferred);
+                if(latLng && latLng.lat && latLng.lng) {
+                    runGeoCoder({latLng: latLng}, process, deferred);
+                } else {
+                    process(null, google.maps.GeocoderStatus.ZERO_RESULTS);
+                }
 
                 return deferred.promise;
             }
