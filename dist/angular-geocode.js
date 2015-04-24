@@ -1,6 +1,7 @@
 /*! angular-geocode - v1.0.0 - 2015-04-24
 * https://github.com/knyga/angular-geocode
 * Copyright (c) 2015 ; Licensed  */
+angular.module('angularGeocode', []);
 angular.module('angularGeocode')
     .directive('geocode', ['$timeout', 'geocodef', function ($timeout, geocodef) {
         return {
@@ -131,4 +132,3 @@ angular.module('angularGeocode')
             }
         };
     }]);
-angular.module('angularGeocode', []);
