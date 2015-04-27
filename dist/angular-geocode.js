@@ -182,9 +182,13 @@ angular.module('angularGeocode')
 
                                 for(i = result.length -1; i >=0; i--) {
 
-                                    if(!result[i].hasOwnProperty('geometry')) {
+                                    if(!result[i].hasOwnProperty('geometry') ||
+                                        !(/(locality|administrative_area_level|country)/.test(result[i].types[0]))
+                                    ) {
                                         continue;
                                     }
+
+                                    findLoc = result[i];
 
                                     //if we have global bounds then select the smallest area that contains bounds
                                     //of the object we found
@@ -198,11 +202,6 @@ angular.module('angularGeocode')
                                         }
 
                                         findLoc = result[i];
-                                    } else {
-
-                                        if(/(locality|administrative_area_level|country)/.test(result[i].types[0])) {
-                                            findLoc = result[i];
-                                        }
                                     }
                                 }
 
