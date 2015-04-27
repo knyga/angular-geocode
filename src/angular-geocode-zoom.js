@@ -1,6 +1,6 @@
 /*global angular */
 angular.module('angularGeocode')
-    .directive('zoomLevel', [function () {
+    .factory('zoomLevel', [function () {
         var ZOOM_MAX = 16,
             WORLD_DIM = {height: 256, width: 256};
 
