@@ -18,9 +18,9 @@ angular.module('angularGeocode')
                     address: false,
                     coordinates: true
                     },
-                    isChangedManually = false,
-                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse') ? true : false,
-                    isReverseBinding = attrs.hasOwnProperty('reverseBinding') ? true : false;
+                    isChangedManually = attrs.hasOwnProperty('changedManually'),
+                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse'),
+                    isReverseBinding = attrs.hasOwnProperty('reverseBinding');
 
                 element.on('change keydown', function() {
                     isChangedManually = true;
@@ -280,13 +280,9 @@ angular.module('angularGeocode')
         }
 
         return function (bounds, mapDim) {
-            var ne = bounds.getNorthEast();
-            var sw = bounds.getSouthWest();
+            var latFraction = (latRad(bounds.ne.latitude) - latRad(bounds.sw.latitude)) / Math.PI;
 
-
-            var latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI;
-
-            var lngDiff = ne.lng() - sw.lng();
+            var lngDiff = bounds.ne.longitude - bounds.sw.longitude;
             var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
 
             var latZoom = zoom(mapDim.height, WORLD_DIM.height, latFraction);
