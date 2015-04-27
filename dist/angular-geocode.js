@@ -66,8 +66,12 @@ angular.module('angularGeocode')
     }]);
 angular.module('angularGeocode')
     .factory('geocodef', ['$timeout', '$q', function ($timeout, $q) {
+        var isMapsLoaded = function() {
+            return "undefined" !== typeof google ? true : false;
+        };
+
         var initGeocoder = function () {
-            return "undefined" !== typeof google ? new google.maps.Geocoder() : null;
+            return isMapsLoaded() ? new google.maps.Geocoder() : null;
         };
 
         var getBoundsSquare = function(bounds) {
@@ -110,27 +114,38 @@ angular.module('angularGeocode')
 
         var geocoder = initGeocoder();
         var runGeoCoder = function (options, process, deferred) {
-            if (null == geocoder) {
-                geocoder = initGeocoder();
-            }
+            var testPause = 100,
+                timeoutId = -1;
 
-            geocoder.geocode(options, function (result, status) {
-                $timeout(function () {
-                    if (!process(result, status)) {
-                        switch (status) {
-                            case google.maps.GeocoderStatus.OVER_QUERY_LIMIT:
-                                deferred.reject('Over query limit');
-                                break;
-                            case google.maps.GeocoderStatus.REQUEST_DENIED:
-                                deferred.reject('Request denied');
-                                break;
-                            case google.maps.GeocoderStatus.INVALID_REQUEST:
-                                deferred.reject('Invalid request');
-                                break;
+            timeoutId = setInterval(function() {
+                if(isMapsLoaded()) {
+                    clearInterval(timeoutId);
+                }
+
+                if (null == geocoder) {
+                    geocoder = initGeocoder();
+                }
+
+                geocoder.geocode(options, function (result, status) {
+                    $timeout(function () {
+                        if (!process(result, status)) {
+                            switch (status) {
+                                case google.maps.GeocoderStatus.OVER_QUERY_LIMIT:
+                                    deferred.reject('Over query limit');
+                                    break;
+                                case google.maps.GeocoderStatus.REQUEST_DENIED:
+                                    deferred.reject('Request denied');
+                                    break;
+                                case google.maps.GeocoderStatus.INVALID_REQUEST:
+                                    deferred.reject('Invalid request');
+                                    break;
+                            }
                         }
-                    }
+                    });
                 });
-            });
+            }, testPause);
+
+
         };
 
         return {
@@ -178,6 +193,8 @@ angular.module('angularGeocode')
                             case "OK": //google.maps.GeocoderStatus.OK:
                                 var address = result.length ? result[result.length - 1].formatted_address : "",
                                     findLoc = result[result.length-1],
+                                    optionsSquare = 0,
+                                    currentSquare = 0,
                                     i = 0;
 
                                 for(i = result.length -1; i >=0; i--) {
@@ -193,8 +210,8 @@ angular.module('angularGeocode')
                                     //if we have global bounds then select the smallest area that contains bounds
                                     //of the object we found
                                     if(options.bounds) {
-                                        var optionsSquare = getBoundsSquare(options.bounds),
-                                            currentSquare = getBoundsSquare(result[i].geometry.bounds);
+                                        optionsSquare = getBoundsSquare(options.bounds);
+                                        currentSquare = getBoundsSquare(result[i].geometry.bounds);
 
                                         //current area is smaller
                                         if(optionsSquare > currentSquare) {
