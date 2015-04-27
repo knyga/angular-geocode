@@ -71,6 +71,10 @@ angular.module('angularGeocode')
         };
 
         var getBoundsSquare = function(bounds) {
+            if("undefined" === typeof bounds) {
+                return 0;
+            }
+
             var ltr = {
                 x: bounds.getNorthEast().lat(),
                 y: bounds.getNorthEast().lng()
