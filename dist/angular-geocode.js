@@ -1,4 +1,4 @@
-/*! angular-geocode - v1.0.0 - 2015-04-24
+/*! angular-geocode - v1.0.0 - 2015-04-27
 * https://github.com/knyga/angular-geocode
 * Copyright (c) 2015 ; Licensed  */
 angular.module('angularGeocode', []);
@@ -19,7 +19,8 @@ angular.module('angularGeocode')
                     coordinates: true
                     },
                     isChangedManually = false,
-                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse') ? true : false;
+                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse') ? true : false,
+                    isReverseBinding = attrs.hasOwnProperty('reverseBinding') ? true : false;
 
                 element.on('change keydown', function() {
                     isChangedManually = true;
@@ -46,7 +47,8 @@ angular.module('angularGeocode')
 
                 //Update address on coordinates changed
                 $scope.$watch('coordinates', function (latLng) {
-                    if (!ignoreChange.coordinates && !(isChangedManually && isBlockReverseOnManual)) {
+                    if (!ignoreChange.coordinates && isReverseBinding &&
+                        !(isChangedManually && isBlockReverseOnManual)) {
                         geocodef.toAddress({
                             latLng: latLng,
                             bounds: $scope.bounds
@@ -68,39 +70,39 @@ angular.module('angularGeocode')
             return "undefined" !== typeof google ? new google.maps.Geocoder() : null;
         };
 
-        var getLocationSquare = function(location) {
+        var getBoundsSquare = function(bounds) {
             var ltr = {
-                x: location.geometry.bounds.getNorthEast().lat(),
-                y: location.geometry.bounds.getNorthEast().lng()
+                x: bounds.getNorthEast().lat(),
+                y: bounds.getNorthEast().lng()
             },
                 lbl = {
-                    x: location.geometry.bounds.getSouthWest().lat(),
-                    y: location.geometry.bounds.getSouthWest().lng()
+                    x: bounds.getSouthWest().lat(),
+                    y: bounds.getSouthWest().lng()
                 };
 
             return (ltr.x - lbl.x) * (ltr.y - lbl.y);
         };
 
-        var getIslocationInsideBounds = function (location, bounds) {
-            var btr = {
-                    x: bounds.getNorthEast().lat(),
-                    y: bounds.getNorthEast().lng()
-                },
-                bbl = {
-                    x: bounds.getSouthWest().lat(),
-                    y: bounds.getSouthWest().lng()
-                },
-                ltr = {
-                    x: location.geometry.bounds.getNorthEast().lat(),
-                    y: location.geometry.bounds.getNorthEast().lng()
-                },
-                lbl = {
-                    x: location.geometry.bounds.getSouthWest().lat(),
-                    y: location.geometry.bounds.getSouthWest().lng()
-                };
-
-            return btr.x > ltr.x && btr.y > ltr.y && bbl.x < lbl.x && bbl.y < lbl.y;
-        };
+        //var getIslocationInsideBounds = function (location, bounds) {
+        //    var btr = {
+        //            x: bounds.getNorthEast().lat(),
+        //            y: bounds.getNorthEast().lng()
+        //        },
+        //        bbl = {
+        //            x: bounds.getSouthWest().lat(),
+        //            y: bounds.getSouthWest().lng()
+        //        },
+        //        ltr = {
+        //            x: location.geometry.bounds.getNorthEast().lat(),
+        //            y: location.geometry.bounds.getNorthEast().lng()
+        //        },
+        //        lbl = {
+        //            x: location.geometry.bounds.getSouthWest().lat(),
+        //            y: location.geometry.bounds.getSouthWest().lng()
+        //        };
+        //
+        //    return btr.x > ltr.x && btr.y > ltr.y && bbl.x < lbl.x && bbl.y < lbl.y;
+        //};
 
         var geocoder = initGeocoder();
         var runGeoCoder = function (options, process, deferred) {
@@ -171,35 +173,33 @@ angular.module('angularGeocode')
                         switch (status) {
                             case "OK": //google.maps.GeocoderStatus.OK:
                                 var address = result.length ? result[result.length - 1].formatted_address : "",
-                                    filteredResults = [],
-                                    findLoc = null,
+                                    findLoc = result[result.length-1],
                                     i = 0;
 
-                                //filter by the areas and insidebounds
-                                for (i = 0; i < result.length; i++) {
-                                    if (/(locality|administrative_area_level|country)/.test(result[i].types[0]) &&
-                                        result[i].hasOwnProperty('geometry')
-                                    ) {
-                                        if(!options.bounds || getIslocationInsideBounds(result[i], options.bounds)) {
-                                            filteredResults.push(result[i]);
+                                for(i = result.length -1; i >=0; i--) {
+
+                                    if(!result[i].hasOwnProperty('geometry')) {
+                                        continue;
+                                    }
+
+                                    //if we have global bounds then select the smallest area that contains bounds
+                                    //of the object we found
+                                    if(options.bounds) {
+                                        var optionsSquare = getBoundsSquare(options.bounds),
+                                            currentSquare = getBoundsSquare(result[i].geometry.bounds);
+
+                                        //current area is smaller
+                                        if(optionsSquare > currentSquare) {
+                                            break;
                                         }
 
-                                        if(!findLoc) {
+                                        findLoc = result[i];
+                                    } else {
+
+                                        if(/(locality|administrative_area_level|country)/.test(result[i].types[0])) {
                                             findLoc = result[i];
                                         }
-
-                                        //address = result[i].formatted_address;
-                                        //break;
                                     }
-                                }
-
-                                if(filteredResults.length > 0 ) {
-                                    //order by square of zone, biggest first
-                                    filteredResults.sort(function(loc) {
-                                        return getLocationSquare(loc);
-                                    });
-
-                                    //findLoc = filteredResults[0];
                                 }
 
                                 //take with the smallest difference
