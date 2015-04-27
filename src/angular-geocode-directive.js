@@ -15,9 +15,9 @@ angular.module('angularGeocode')
                     address: false,
                     coordinates: true
                     },
-                    isChangedManually = false,
-                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse') ? true : false,
-                    isReverseBinding = attrs.hasOwnProperty('reverseBinding') ? true : false;
+                    isChangedManually = attrs.hasOwnProperty('changedManually'),
+                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse'),
+                    isReverseBinding = attrs.hasOwnProperty('reverseBinding');
 
                 element.on('change keydown', function() {
                     isChangedManually = true;
