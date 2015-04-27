@@ -116,7 +116,8 @@ angular.module('angularGeocode')
                 if (options.address) {
                     runGeoCoder({address: options.address}, process, deferred);
                 } else {
-                    process(null, google.maps.GeocoderStatus.ZERO_RESULTS);
+                    //process(null, google.maps.GeocoderStatus.ZERO_RESULTS);
+                    process(null, "ZERO_RESULTS");
                 }
 
                 return deferred.promise;
@@ -190,7 +191,8 @@ angular.module('angularGeocode')
                         }
                     }, process, deferred);
                 } else {
-                    process(null, google.maps.GeocoderStatus.ZERO_RESULTS);
+                    //process(null, google.maps.GeocoderStatus.ZERO_RESULTS);
+                    process(null, "ZERO_RESULTS");
                 }
 
                 return deferred.promise;
