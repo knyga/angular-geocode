@@ -3,74 +3,25 @@
 * Copyright (c) 2015 ; Licensed  */
 angular.module('angularGeocode', []);
 angular.module('angularGeocode')
-    .directive('geocode', ['$timeout', 'geocodef', function ($timeout, geocodef) {
-        return {
-            restrict: 'EA',
-            scope: {
-                address: '=?',
-                coordinates: '=?',
-                result: '=?',
-                bounds: '=?',
-                changedManually: '=?'
-            },
-            template: '<div></div>',
-            link: function ($scope, element, attrs) {
-                var ignoreChange = {
-                    address: false,
-                    coordinates: true
-                    },
-                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse'),
-                    isReverseBinding = attrs.hasOwnProperty('reverseBinding');
-
-                if("undefined" === typeof $scope.changedManually) {
-                    $scope.changedManually = attrs.hasOwnProperty('changedManually');
-                }
-
-                element.on('change keydown', function() {
-                    $scope.changedManually = true;
-                });
-
-                //Update coordinates on address changed
-                $scope.$watch('address', function (address, oldAddress) {
-                    if(oldAddress && 0 < oldAddress.length && 0 === address.length) {
-                        $scope.changedManually = false;
-                    }
-
-                    if (!ignoreChange.address && ((!address && !$scope.changedManually) || (address.length > 0 && $scope.changedManually))) {
-                        geocodef.toLatLng({
-                            address: address,
-                            bounds: $scope.bounds
-                        }).then(function (value) {
-                            $scope.coordinates = value.latLng;
-                            $scope.result = value.result;
-                            ignoreChange.coordinates = true;
-                        });
-                    }
-                    ignoreChange.address = false;
-                });
-
-                //Update address on coordinates changed
-                $scope.$watch('coordinates', function (latLng) {
-                    if (!ignoreChange.coordinates && isReverseBinding &&
-                        !($scope.changedManually && isBlockReverseOnManual)) {
-                        geocodef.toAddress({
-                            latLng: latLng,
-                            bounds: $scope.bounds
-                        }).then(function (value) {
-                            $scope.address = value.address;
-                            $scope.result = value.result;
-                            ignoreChange.address = true;
-                            $scope.changedManually = false;
-                        });
-                    }
-                    ignoreChange.coordinates = false;
-                }, true);
-            }
-        };
-    }]);
-angular.module('angularGeocode')
     .service('GeoFunctions', [function () {
         var GeoFunctions = this;
+
+        this.calculateLatLngBoundsSquare = function(bounds) {
+            if("undefined" === typeof bounds) {
+                return 0;
+            }
+
+            var ltr = {
+                    x: bounds.getNorthEast().lat(),
+                    y: bounds.getNorthEast().lng()
+                },
+                lbl = {
+                    x: bounds.getSouthWest().lat(),
+                    y: bounds.getSouthWest().lng()
+                };
+
+            return (ltr.x - lbl.x) * (ltr.y - lbl.y);
+        };
 
         this.convertToLatLngBounds = function(bounds) {
             return new google.maps.LatLngBounds(
@@ -369,6 +320,73 @@ angular.module('angularGeocode')
                 }
 
                 return deferred.promise;
+            }
+        };
+    }]);
+angular.module('angularGeocode')
+    .directive('geocode', ['$timeout', 'geocodef', function ($timeout, geocodef) {
+        return {
+            restrict: 'EA',
+            scope: {
+                address: '=?',
+                coordinates: '=?',
+                result: '=?',
+                bounds: '=?',
+                changedManually: '=?'
+            },
+            template: '<div></div>',
+            link: function ($scope, element, attrs) {
+                var ignoreChange = {
+                    address: false,
+                    coordinates: true
+                    },
+                    isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse'),
+                    isReverseBinding = attrs.hasOwnProperty('reverseBinding');
+
+                if("undefined" === typeof $scope.changedManually) {
+                    $scope.changedManually = attrs.hasOwnProperty('changedManually');
+                }
+
+                element.on('change keydown', function() {
+                    $scope.changedManually = true;
+                });
+
+                //Update coordinates on address changed
+                $scope.$watch('address', function (address, oldAddress) {
+                    if(oldAddress && 0 < oldAddress.length && 0 === address.length) {
+                        $scope.changedManually = false;
+                    }
+
+                    //if (!ignoreChange.address && ((!address && !$scope.changedManually) || (address.length > 0 && $scope.changedManually))) {
+                    if (!ignoreChange.address && address && address.length > 0 && $scope.changedManually) {
+                        geocodef.toLatLng({
+                            address: address,
+                            bounds: $scope.bounds
+                        }).then(function (value) {
+                            $scope.coordinates = value.latLng;
+                            $scope.result = value.result;
+                            ignoreChange.coordinates = true;
+                        });
+                    }
+                    ignoreChange.address = false;
+                });
+
+                //Update address on coordinates changed
+                $scope.$watch('coordinates', function (latLng) {
+                    if (!ignoreChange.coordinates && isReverseBinding &&
+                        !($scope.changedManually && isBlockReverseOnManual)) {
+                        geocodef.toAddress({
+                            latLng: latLng,
+                            bounds: $scope.bounds
+                        }).then(function (value) {
+                            $scope.address = value.address;
+                            $scope.result = value.result;
+                            ignoreChange.address = true;
+                            $scope.changedManually = false;
+                        });
+                    }
+                    ignoreChange.coordinates = false;
+                }, true);
             }
         };
     }]);

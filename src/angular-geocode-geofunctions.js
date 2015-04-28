@@ -3,6 +3,23 @@ angular.module('angularGeocode')
     .service('GeoFunctions', [function () {
         var GeoFunctions = this;
 
+        this.calculateLatLngBoundsSquare = function(bounds) {
+            if("undefined" === typeof bounds) {
+                return 0;
+            }
+
+            var ltr = {
+                    x: bounds.getNorthEast().lat(),
+                    y: bounds.getNorthEast().lng()
+                },
+                lbl = {
+                    x: bounds.getSouthWest().lat(),
+                    y: bounds.getSouthWest().lng()
+                };
+
+            return (ltr.x - lbl.x) * (ltr.y - lbl.y);
+        };
+
         this.convertToLatLngBounds = function(bounds) {
             return new google.maps.LatLngBounds(
                 //sw
