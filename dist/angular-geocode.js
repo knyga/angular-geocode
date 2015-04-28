@@ -10,7 +10,8 @@ angular.module('angularGeocode')
                 address: '=?',
                 coordinates: '=?',
                 result: '=?',
-                bounds: '=?'
+                bounds: '=?',
+                changedManually: '=?'
             },
             template: '<div></div>',
             link: function ($scope, element, attrs) {
@@ -18,18 +19,21 @@ angular.module('angularGeocode')
                     address: false,
                     coordinates: true
                     },
-                    isChangedManually = attrs.hasOwnProperty('changedManually'),
                     isBlockReverseOnManual = attrs.hasOwnProperty('blockManualReverse'),
                     isReverseBinding = attrs.hasOwnProperty('reverseBinding');
 
+                if("undefined" === typeof $scope.changedManually) {
+                    $scope.changedManually = attrs.hasOwnProperty('changedManually');
+                }
+
                 element.on('change keydown', function() {
-                    isChangedManually = true;
+                    $scope.changedManually = true;
                 });
 
                 //Update coordinates on address changed
                 $scope.$watch('address', function (address, oldAddress) {
                     if(oldAddress && 0 < oldAddress.length && 0 === address.length) {
-                        isChangedManually = false;
+                        $scope.changedManually = false;
                     }
 
                     if (!ignoreChange.address) {
@@ -48,7 +52,7 @@ angular.module('angularGeocode')
                 //Update address on coordinates changed
                 $scope.$watch('coordinates', function (latLng) {
                     if (!ignoreChange.coordinates && isReverseBinding &&
-                        !(isChangedManually && isBlockReverseOnManual)) {
+                        !($scope.changedManually && isBlockReverseOnManual)) {
                         geocodef.toAddress({
                             latLng: latLng,
                             bounds: $scope.bounds
@@ -56,7 +60,7 @@ angular.module('angularGeocode')
                             $scope.address = value.address;
                             $scope.result = value.result;
                             ignoreChange.address = true;
-                            isChangedManually = false;
+                            $scope.changedManually = false;
                         });
                     }
                     ignoreChange.coordinates = false;
