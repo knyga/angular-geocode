@@ -36,7 +36,7 @@ angular.module('angularGeocode')
                         $scope.changedManually = false;
                     }
 
-                    if (!ignoreChange.address && (!address || address.length < 1)) {
+                    if (!ignoreChange.address && address && address.length > 0) {
                         geocodef.toLatLng({
                             address: address,
                             bounds: $scope.bounds
