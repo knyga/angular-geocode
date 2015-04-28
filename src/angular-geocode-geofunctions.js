@@ -1,7 +1,22 @@
-/*global angular */
+/*global angular, google */
 angular.module('angularGeocode')
     .service('GeoFunctions', [function () {
         var GeoFunctions = this;
+
+        this.convertToLatLngBounds = function(bounds) {
+            return new google.maps.LatLngBounds(
+                //sw
+                new google.maps.LatLng(
+                    bounds.sw.latitude,
+                    bounds.sw.longitude
+                ),
+                //ne
+                new google.maps.LatLng(
+                    bounds.ne.latitude,
+                    bounds.ne.longitude
+                )
+            );
+        };
 
         this.calculateZoomLevel = function(bounds, mapDim) {
             var ZOOM_MAX = 16,
