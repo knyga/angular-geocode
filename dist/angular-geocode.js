@@ -275,6 +275,13 @@ angular.module('angularGeocode')
 
                                         //current area is smaller
                                         if(optionsSquare > currentSquare) {
+
+                                            //Selects the smaller area which is contains
+                                            //biggest of placed in the bounds area
+                                            if(options.isTakeBigger) {
+                                                findLoc = result[i];
+                                            }
+
                                             break;
                                         }
 
