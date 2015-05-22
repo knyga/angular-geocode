@@ -42,6 +42,7 @@ angular.module('angularGeocode')
                             $scope.coordinates = value.latLng;
                             $scope.result = value.result;
                             ignoreChange.coordinates = true;
+                            element.trigger('address-converted');
                         });
                     }
                     ignoreChange.address = false;
@@ -59,6 +60,7 @@ angular.module('angularGeocode')
                             $scope.result = value.result;
                             ignoreChange.address = true;
                             $scope.changedManually = false;
+                            element.trigger('coordinates-converted');
                         });
                     }
                     ignoreChange.coordinates = false;
