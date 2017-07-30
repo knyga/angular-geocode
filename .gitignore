@@ -4,3 +4,5 @@ bower_components
 .idea
 .bower
 coverage
+.DS_Store
+angular-recursion

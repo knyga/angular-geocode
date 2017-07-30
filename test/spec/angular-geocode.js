@@ -39,7 +39,7 @@ describe('Factory: AngularGeocodeForward', function () {
             latLng: {latitude: 48.856614, longitude: 2.3522219000000177}
         })
             .then(function (value) {
-                expect(value.address).toEqual('4th arrondissement, Paris, France');
+                expect(value.address).toEqual('Paris, France');
                 next();
         });
 
@@ -56,7 +56,7 @@ describe('Factory: AngularGeocodeForward', function () {
             latLng: {latitude: 48.856614, longitude: 2.3522219000000177}
         })
             .then(function (value) {
-                expect(value.address).toEqual('4th arrondissement, Paris, France');
+                expect(value.address).toEqual('Paris, France');
                 next();
             });
 
